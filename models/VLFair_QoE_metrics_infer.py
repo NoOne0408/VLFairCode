@@ -5,7 +5,7 @@ import predictTest1
 from os.path import dirname, abspath
 d = dirname(dirname(abspath(__file__)))
 sys.path.append(d)
-from models.VLFair_QoE_cal import  get_live_normalization_PQ, get_live_smoothness
+from models.VLFair_QoE_cal import   get_live_smoothness
 M_IN_K=1000
 M_IN_BPS = 1000000
 BIT_IN_BYTE = 8

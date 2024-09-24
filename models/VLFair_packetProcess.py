@@ -6,16 +6,14 @@ sys.path.append(d)
 from models.VLFair_SSH import doSSHcmd
 from models.VLFair_bandwidthCal import getBandwidthList
 from models.VLFair_tcScripts import createScriptsContent
-from models.VLFair_QoE_metrics_infer import getPlayerQoEMetrics, getPlayerQoE,getLivePlayerQoEMetrics,getVodPlayerQoEMetrics
-from models.VLFair_QoE_cal import VIDEO_BIT_RATE, getLivePlayerQoE,get_vod_metric_dic,getVodPlayerQoE
+from models.VLFair_QoE_metrics_infer import getPlayerQoEMetrics, getPlayerQoE,getLivePlayerQoEMetrics
+from models.VLFair_QoE_cal import getLivePlayerQoE,get_vod_metric_dic,getVodPlayerQoE
 
 
-import pandas as pd
+
 import subprocess
 import threading
 import socket
-import struct
-import numpy
 import json
 import time
 import os
@@ -115,28 +113,28 @@ def get_live_file():
         cmd = "sudo tshark -i vmnet1 -a duration:200 -f 'host 192.168.166.2 and udp' -w"  + file            
         os.system(cmd)
 
-
-
-def get_vod_status(data_dic):
-    global last_chunk_quality
-    # 要读取的 pcap 文件路径
-    pcap_file = FILE_PREFIX+'captured_traffic_tcp.pcap'
-
+def print_tshark_output(pcap_file,time_gap):
     # 调用 subprocess 执行命令
-    time_gap = 4
-    tshark_output = parse_tshark(pcap_file,time_gap)
+    tshark_output = parse_tshark(pcap_file, time_gap)
 
-    # 解析返回结果 
+    # 解析返回结果
     if tshark_output:
         # 解析输出并提取统计信息
         statistics = parse_tshark_output(tshark_output)
-
-        # 打印提取的统计信息,every second
+        # 打印提取的统计信息,every gap second
         for stat in statistics[-3:]:
-            bitrate_per_gap_s = stat['bytes']*BIT_IN_BYTE/M_IN_BPS
-            bitrate = bitrate_per_gap_s/time_gap
+            bitrate_per_gap_s = stat['bytes'] * BIT_IN_BYTE / M_IN_BPS
+            bitrate = bitrate_per_gap_s / time_gap
             print(f"vod Interval: {stat['start_interval']} <> {stat['end_interval']}, "
-                  f"Frames: {stat['frames']}, bitrate(mbps) : {bitrate}"+'\n')
+                  f"Frames: {stat['frames']}, bitrate(mbps) : {bitrate}" + '\n')
+
+last_chunk_quality = 0
+def get_vod_status(data_dic):
+    global last_chunk_quality
+    # 要读取的 pcap 文件路径
+    file = 'captured_traffic_tcp.pcap'
+    pcap_file = FILE_PREFIX + file
+    print_tshark_output(pcap_file,4)
 
     # print(f"buffer:{data_dic['buffer']}")        
     # print('last_chunk_quality_before:',last_chunk_quality)
@@ -151,34 +149,16 @@ def get_vod_status(data_dic):
 def get_live_status():
     while True:
         # 要读取的 pcap 文件路径
-        pcap_file = FILE_PREFIX+'captured_traffic.pcap'
-        csv_file = FILE_PREFIX+'traffic_live.csv'
+        file = 'captured_traffic.pcap'
+        pcap_file = FILE_PREFIX + file
+        csv_file = FILE_PREFIX + 'traffic_live.csv'
+
         cmd = 'sudo tshark -r '+pcap_file+' -T fields -e frame.number -e frame.time_relative -e frame.time_epoch -e ip.src -e ip.dst -e ip.proto -e ip.len -e udp.srcport -e udp.dstport -e udp.length -e rtp.ssrc -e rtp.timestamp -e rtp.seq -e rtp.p_type -e rtp.marker -E header=y -E separator=,> '+csv_file
         os.system(cmd)
 
-
+        print_tshark_output(pcap_file, 4)
 
         print("live线程:数据获取完成")
-        # 调用 subprocess 执行命令
-        # time_gap = 4
-        # tshark_output = parse_tshark(pcap_file,time_gap)
-
-
-        # # 解析返回结果 
-        # if tshark_output:
-        #     # 解析输出并提取统计信息
-        #     statistics = parse_tshark_output(tshark_output)
-
-        #     # 打印提取的统计信息,every second
-        #     # bitrate_list = []
-        #     bitrate = 0
-        #     for stat in statistics[-3:]:
-        #         bitrate_per_gap_s = stat['bytes']*BIT_IN_BYTE/M_IN_BPS
-        #         bitrate = bitrate_per_gap_s/time_gap
-        #         print(f"live Interval: {stat['start_interval']} <> {stat['end_interval']}, "
-        #               f"Frames: {stat['frames']}, bitrate(mbps) : {bitrate}"+'\n')
-
-        
         metrics = getLivePlayerQoEMetrics()
         # result = {'bitrate(mbps)':bitrate,'bitrate from ml (mbps)':metrics['bitrate'],'fps':metrics['fps'],'frame_jitter':metrics['frame_jitter'],'smoothness':metrics['smoothness']}
         # print(result)
@@ -189,15 +169,6 @@ def get_live_status():
 
         time.sleep(4)
 
- 
-        
-        
-
-# def get_status():
-#     while True:
-#         # get_vod_status()
-#         get_live_status()
-#         time.sleep(4)
 
 # 定义监听的主机和端口
 host = '0.0.0.0'  # 监听所有可用的网络接口
@@ -228,11 +199,9 @@ def get_buffer():
                 break
  
 
-last_chunk_quality = 0
+
 def handle_client(conn, addr):
     """处理每个客户端连接的函数"""
-
-    
     with conn:
         try:
             while True: 
