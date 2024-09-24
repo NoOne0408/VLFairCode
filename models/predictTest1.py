@@ -27,7 +27,7 @@ estimation_methods = ['ip-udp-heuristic', 'rtp-heuristic', 'ip-udp-ml', 'rtp-ml'
 # ]
 
 file_tuple = [
-    '/home/xxx/VLFair/models/VLFair/live_player_data/traffic_live.csv',
+    '/home/xxx/PycharmProjects/VLFairCode/models/VLFair/live_player_data/traffic_live.csv',
     '/home/xxx/PycharmProjects/pythonProjectvcmal/vcaml/data/in_lab_data/2023-05-16_meet_842_161_74_9_0_52_258/chrome-842_161_74_9_0_52_258-1684304046.json'
 ]
 
