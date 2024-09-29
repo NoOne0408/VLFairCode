@@ -38,7 +38,8 @@ def doSomethingAfterListen():
             content = createScriptsContent(list_target_bw)
             print('content:',content)
             # 6. 使用ssh执行脚本
-            doSSHcmd(content)
+            doSSHcmd_result = doSSHcmd(content)
+            print('doSSHcmd:',doSSHcmd_result)
         except Exception as e:
             print(f"xxxtest try catch")
 
