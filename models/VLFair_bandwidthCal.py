@@ -15,9 +15,52 @@ FILE_PREFIX = 'VLFair/live_player_data/'
 def getBandwidthList():
     print("getBandwidthList")
     list_bw = []
-    list_bw.append(print_vod_output())
-    list_bw.append(print_live_output())
+    dic_vod ={'vod bw':print_vod_output()}
+    dic_live = {'live bw': print_live_output()}
+    list_bw.append(dic_vod)
+    list_bw.append(dic_live)
     return list_bw
+
+# 最简单的带宽分配方式：按照本player的QoE占总QoE的比值去分配带宽，qoe越小分配到的带宽越多
+def getCalBandwidthList(list_bw, list_qoe):
+    print("getCalBandwidthList")
+    qoe_value_list = get_qoe_value_list(list_qoe)
+    bandwidth_value_list = get_bandwidth_value_list(list_bw)
+
+    total_bandwidth = sum(bandwidth_value_list)
+    target_bandwidth_list = []
+
+    for qoe in qoe_value_list:
+        qoe_ratio = get_qoe_ratio(qoe, qoe_value_list)
+        # print('qoe_ratio',qoe_ratio)
+        bw_new = qoe_ratio*total_bandwidth
+        target_bandwidth_list.append(bw_new)
+    return target_bandwidth_list
+
+def get_qoe_ratio(qoe,qoe_list):
+    return 1-(qoe/sum(qoe_list))
+
+
+# 将字典转化为只包含bw数值的list
+def get_bandwidth_value_list(list_bw):
+    bandwidth_value_list = []
+    for bw_dic in list_bw:
+        player_key = list(bw_dic.keys())[0]
+        bw = bw_dic[player_key]
+        # print('bw_value', bw)
+        bandwidth_value_list.append(bw)
+    return bandwidth_value_list
+
+# 将字典转化为只包含 qoe数值的list
+def get_qoe_value_list(list_qoe):
+    qoe_value_list = []
+    for qoe_dict in list_qoe:
+        player_key = list(qoe_dict.keys())[0]
+        qoe_value = qoe_dict[player_key]
+        # print('qoe_value',qoe_value)
+        qoe_value_list.append(qoe_value)
+    return qoe_value_list
+
 
 def parse_tshark(pcap_file, slot):
     # 构建 tshark 命令
