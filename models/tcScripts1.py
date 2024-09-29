@@ -1,7 +1,7 @@
 # import bandwidthCal
 # import models.predictTest1
 # from  vcaml.src.models import  predictTest1
-import predictTest1
+import predictLiveMetrics
 
 
 floder = ""
@@ -44,6 +44,6 @@ def doSomethingAfterCapture():
     # print(createScripts(content))
     #
     # print(bandwidthCal.liveQoE())
-    print(predictTest1.predict('bitrate'))
+    print(predictLiveMetrics.predict('bitrate'))
 
-print(predictTest1.predict('bitrate'))
+print(predictLiveMetrics.predict('bitrate'))

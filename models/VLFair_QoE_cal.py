@@ -90,7 +90,7 @@ def getLivePlayerQoE(live_metrics):
     latency = get_live_normalization_latency(live_metrics['T_client'], live_metrics['T_server'], live_metrics['b_client'])
     frame_jitter = get_live_normalization_frame_jitter(live_metrics['frame_jitter'])
     qoe = qoe_vector[1][0] * PQ + qoe_vector[1][1] * rebuffer + qoe_vector[1][2] * smoothness + qoe_vector[1][3]*latency
-    print('live qoe and metrics(qoe,PQ,rebuffer,smoothness,latency,frame_jitter):',qoe,PQ,rebuffer,smoothness,latency,frame_jitter)
+    # print('live qoe and metrics(qoe,PQ,rebuffer,smoothness,latency,frame_jitter):',qoe,PQ,rebuffer,smoothness,latency,frame_jitter)
     return qoe
 
 

@@ -1,6 +1,6 @@
 import sys
 import math
-import predictTest1
+import predictLiveMetrics
 
 from os.path import dirname, abspath
 d = dirname(dirname(abspath(__file__)))
@@ -24,10 +24,10 @@ def getPlayerQoEMetrics(m, n, total):
 def getLivePlayerQoEMetrics():
     # print("getLivePlayerQoEMetrics")
     metrics = ['bitrate', 'framesReceivedPerSecond', 'frame_jitter']  # what to predict
-    bitrate_origin = predictTest1.predict(metrics[0]).mean()    
-    smoothness = get_live_smoothness(predictTest1.predict(metrics[0]))
-    fps = predictTest1.predict(metrics[1]).mean()
-    frame_jitter = predictTest1.predict(metrics[2]).mean()
+    bitrate_origin = predictLiveMetrics.predict(metrics[0]).mean()
+    smoothness = get_live_smoothness(predictLiveMetrics.predict(metrics[0]))
+    fps = predictLiveMetrics.predict(metrics[1]).mean()
+    frame_jitter = predictLiveMetrics.predict(metrics[2]).mean()
     live_metrics = {'bitrate':bitrate_origin/M_IN_BPS,'fps': fps, 'frame_jitter': frame_jitter, 'smoothness':smoothness}
     # print(live_metrics)
     return live_metrics
