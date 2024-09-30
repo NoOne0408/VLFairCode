@@ -6,7 +6,7 @@ sys.path.append(d)
 
 from models.VLFair_SSH import doSSHcmd
 from models.VLFair_bandwidthCal import getBandwidthList, getCalBandwidthList
-from models.VLFair_tcScripts import createScriptsContent
+from models.VLFair_tcScripts import createScriptsContentEgress, createScriptsContentIngress, doEgreesCommand
 from models.VLFair_listener import main, getCoexistenceStatus
 
 import threading
@@ -33,12 +33,17 @@ def doSomethingAfterListen():
             # 3. 获取每个player的target bw
             list_target_bw = getCalBandwidthList(list_bw,list_qoe)
             print('list_target_bw:',list_target_bw)
+            # 4. 根据bw分配结果，返回tc脚本并proxy执行
+            content_egress = createScriptsContentEgress(list_target_bw)
+            print('content_egress:',content_egress)
+            doEgreesCommand(content_egress)
 
-            # 5. 根据bw分配结果，返回tc脚本
-            content = createScriptsContent(list_target_bw)
-            print('content:',content)
+            # 5. 根据bw分配结果，返回tc脚本并vm执行
+            content_ingress = createScriptsContentIngress(list_target_bw)
+            print('content_ingress:',content_ingress)
+
             # 6. 使用ssh执行脚本
-            doSSHcmd_result = doSSHcmd(content)
+            doSSHcmd_result = doSSHcmd(content_ingress)
             print('doSSHcmd:',doSSHcmd_result)
         except Exception as e:
             print(f"xxxtest try catch")

@@ -1,10 +1,10 @@
+import os
 import sys
 from os.path import dirname, abspath
 d = dirname(dirname(abspath(__file__)))
 sys.path.append(d)
 
 floder = ""
-host_network_interfare = "ens33"
 
 # 将流控脚本内容输出到脚本文件中
 # def createScripts(content):
@@ -14,18 +14,44 @@ host_network_interfare = "ens33"
 #         file.write(content)
 
 # 将带宽结果转化为流控脚本内容
-def createScriptsContent(list_target_bw):
-    print("createScriptsContent")
-    script_tc = "sudo tc qdisc add dev ens33 root handle 1: htb default 30 \n"
+def createScriptsContentEgress(list_target_bw):
+    print("createScriptsContentEgress")
+    host_network_interfare = "vmnet1"
+    script_tc = "sudo tc qdisc add dev " + host_network_interfare + " root handle 1: htb default 30 \n"
     classid = 1
     for bw in list_target_bw:
         script_tc += "sudo tc class add dev " + host_network_interfare + " parent 1:0 classid 1:" + str(
-            classid) + " htb rate " + str(bw) + "mbps\n"
+            classid) + " htb rate " + str(bw) + "mbit\n"
         classid = classid + 1
-    script_tc += "sudo tc class show dev ens33\n"
-    script_tc += "sudo tc filter show dev ens33"
+    # add filter
+    script_tc += "sudo tc filter add dev " + host_network_interfare + " protocol ip parent 1:0 prio 1 u32 match ip protocol 6 0xff match ip sport 80 0xffff flowid 1:1 \n"
+    script_tc += "sudo tc filter add dev " + host_network_interfare + " protocol ip parent 1:0 prio 1 u32 match ip protocol 17 0xff match ip sport 8000 0xffff flowid 1:2 \n"
+
+    # show class and filter
+    script_tc += "sudo tc class show dev " + host_network_interfare + "\n"
+    script_tc += "sudo tc filter show dev " + host_network_interfare
     return script_tc
 
+def createScriptsContentIngress(list_target_bw):
+    print("createScriptsContentIngress")
+    script_tc = "sudo tc qdisc add dev ens33 handle ffff: ingress"
+    script_tc += "sudo tc filter add dev ens33 parent ffff: protocol ip prio 1 u32 match ip protocol 6 0xff match ip dport 80 0xffff police rate "+ str(list_target_bw[0]) + "mbit burst 10k drop"
+    script_tc += "sudo tc filter add dev ens33 parent ffff: protocol ip prio 1 u32 match ip protocol 17 0xff match ip dport 8000 0xffff police rate "+ str(list_target_bw[1]) + "mbit burst 10k drop"
+    script_tc +="sudo tc filter show dev ens33 parent ffff:"
+    return script_tc
+
+def doEgreesCommand(script_tc):
+    cmd = "sudo tc qdisc del dev vmnet1 root"
+    os.system(cmd)
+    os.system(script_tc)
+
+
+if __name__ == "__main__":
+    list_target_bw = [1,2]
+    content = createScriptsContentEgress(list_target_bw)
+    print(content)
+    # content = "sudo tc qdisc del dev vmnet1 root"
+    doEgreesCommand(content)
 
 
 

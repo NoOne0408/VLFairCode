@@ -48,8 +48,8 @@ def doSSHcmd(content):
     print('doSSHcmd')
     ssh_client = VLFair_SSH()
     ssh_client.connectSSH()
-    #先清理上次的class和filter
-    cmd = "sudo tc qdisc del dev ens33 root"
+    #先清理上次的ingress
+    cmd = "sudo tc qdisc del dev ens33 ingress"
     runSSH(cmd,ssh_client)
     #再生成新的规则
     return_content = runSSH(content,ssh_client)
