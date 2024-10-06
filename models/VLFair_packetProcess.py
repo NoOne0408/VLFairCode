@@ -36,9 +36,9 @@ def regulationAfterListening():
             content_ingress = createScriptsContentIngress(list_target_bw)
             print('content_ingress:', content_ingress)
 
-            # 6. 使用ssh执行脚本
-            do_ssh_cmd_result = doSSHcmd(content_ingress)
-            print('doSSHcmd:', do_ssh_cmd_result)
+            # # 6. 使用ssh执行脚本
+            # do_ssh_cmd_result = doSSHcmd(content_ingress)
+            # print('doSSHcmd:', do_ssh_cmd_result)
         except Exception as e:
             print(f"xxxtest try catch")
 

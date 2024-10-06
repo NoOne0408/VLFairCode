@@ -26,12 +26,12 @@ def createScriptsContentEgress(list_target_bw):
             classid) + " htb rate " + str(bw) + "mbit\n"
         classid += 1
     # add filter
-    script_tc += "sudo tc filter add dev " + host_network_interfare + ("protocol ip parent 1:0 prio 1 u32 match ip "
-                                                                       "protocol 6 0xff match ip sport 80 0xffff "
-                                                                       "flowid 1:1 \n")
-    script_tc += "sudo tc filter add dev " + host_network_interfare + ("protocol ip parent 1:0 prio 1 u32 match ip "
-                                                                       "protocol 17 0xff match ip sport 8000 0xffff "
-                                                                       "flowid 1:2 \n")
+    script_tc += "sudo tc filter add dev " + host_network_interfare + (" protocol ip parent 1:0 prio 1 u32 match ip "
+                                                                       " protocol 6 0xff match ip sport 80 0xffff "
+                                                                       " flowid 1:1 \n")
+    script_tc += "sudo tc filter add dev " + host_network_interfare + (" protocol ip parent 1:0 prio 1 u32 match ip "
+                                                                       " protocol 17 0xff match ip sport 8000 0xffff "
+                                                                       " flowid 1:2 \n")
 
     # show class and filter
     script_tc += "sudo tc class show dev " + host_network_interfare + "\n"
@@ -42,13 +42,13 @@ def createScriptsContentEgress(list_target_bw):
 def createScriptsContentIngress(list_target_bw):
     network_interfare = "ens33"
     print("createScriptsContentIngress")
-    script_tc = "sudo tc qdisc add dev " + network_interfare + " handle ffff: ingress"
-    script_tc += "sudo tc filter add dev " + network_interfare + ("parent ffff: protocol ip prio 1 u32 match ip "
-                                                                  "protocol 6 0xff match ip dport 80 0xffff police "
-                                                                  "rate ") + str(list_target_bw[0]) + "mbit burst 10k drop"
-    script_tc += "sudo tc filter add dev " + network_interfare + ("parent ffff: protocol ip prio 1 u32 match ip "
-                                                                  "protocol 17 0xff match ip dport 8000 0xffff police "
-                                                                  "rate ") + str(list_target_bw[1]) + "mbit burst 10k drop"
+    script_tc = "sudo tc qdisc add dev " + network_interfare + " handle ffff: ingress\n"
+    script_tc += "sudo tc filter add dev " + network_interfare + (" parent ffff: protocol ip prio 1 u32 match ip "
+                                                                  " protocol 6 0xff match ip dport 80 0xffff police "
+                                                                  " rate ") + str(list_target_bw[0]) + "mbit burst 10k drop\n"
+    script_tc += "sudo tc filter add dev " + network_interfare + (" parent ffff: protocol ip prio 1 u32 match ip "
+                                                                  " protocol 17 0xff match ip dport 8000 0xffff police "
+                                                                  "rate ") + str(list_target_bw[1]) + "mbit burst 10k drop\n"
     script_tc += "sudo tc filter show dev " + network_interfare + " parent ffff:"
     return script_tc
 

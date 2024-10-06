@@ -10,8 +10,7 @@ import sys
 d = dirname(dirname(abspath(__file__)))
 sys.path.append(d)
 
-from models.VLFair_QoE_metrics_infer import get_live_metric_dic
-from models.VLFair_QoE_cal import calLivePlayerQoE, get_vod_metric_dic, calVodPlayerQoE
+from models.VLFair_QoE_module import calLivePlayerQoE, calVodPlayerQoE, get_live_metric_dic, get_vod_metric_dic
 
 FILE_PREFIX = 'VLFair/live_player_data/'
 
