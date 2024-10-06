@@ -83,7 +83,7 @@ def get_live_normalization_latency(T_client, T_server, b_client):
 
 
 
-def getLivePlayerQoE(live_metrics):
+def calLivePlayerQoE(live_metrics):
     PQ = get_live_normalization_PQ(live_metrics['bitrate'])
     rebuffer=get_live_normalization_rebuffer(live_metrics['framesReceivedPerSecond'],0,0)
     smoothness = live_metrics['smoothness']
@@ -129,7 +129,7 @@ def get_vod_normalization_smoothess(q_now, q_old):
 
 
 # 获取某个vod播放器某时隙 k 用户体验值
-def getVodPlayerQoE(vod_metrics):
+def calVodPlayerQoE(vod_metrics):
     # print('获取质量QoE')
     PQ = get_vod_normalization_PQ(vod_metrics['bitrate'])
     rebuffer = vod_metrics['RebufferTime']

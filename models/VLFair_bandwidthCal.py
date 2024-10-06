@@ -2,24 +2,26 @@ import re
 import subprocess
 import sys
 from os.path import dirname, abspath
+
 d = dirname(dirname(abspath(__file__)))
 sys.path.append(d)
 from numpy import *
 
-
-M_IN_K=1000
+M_IN_K = 1000
 M_IN_BPS = 1000000
 BIT_IN_BYTE = 8
 FILE_PREFIX = 'VLFair/live_player_data/'
 
+
 def getBandwidthList():
     print("getBandwidthList")
     list_bw = []
-    dic_vod ={'vod bw':print_vod_output()}
+    dic_vod = {'vod bw': print_vod_output()}
     dic_live = {'live bw': print_live_output()}
     list_bw.append(dic_vod)
     list_bw.append(dic_live)
     return list_bw
+
 
 # 最简单的带宽分配方式：按照本player的QoE占总QoE的比值去分配带宽，qoe越小分配到的带宽越多
 def getCalBandwidthList(list_bw, list_qoe):
@@ -33,12 +35,13 @@ def getCalBandwidthList(list_bw, list_qoe):
     for qoe in qoe_value_list:
         qoe_ratio = get_qoe_ratio(qoe, qoe_value_list)
         # print('qoe_ratio',qoe_ratio)
-        bw_new = qoe_ratio*total_bandwidth
+        bw_new = qoe_ratio * total_bandwidth
         target_bandwidth_list.append(bw_new)
     return target_bandwidth_list
 
-def get_qoe_ratio(qoe,qoe_list):
-    return 1-(qoe/sum(qoe_list))
+
+def get_qoe_ratio(qoe, qoe_list):
+    return 1 - (qoe / sum(qoe_list))
 
 
 # 将字典转化为只包含bw数值的list
@@ -50,6 +53,7 @@ def get_bandwidth_value_list(list_bw):
         # print('bw_value', bw)
         bandwidth_value_list.append(bw)
     return bandwidth_value_list
+
 
 # 将字典转化为只包含 qoe数值的list
 def get_qoe_value_list(list_qoe):
@@ -105,7 +109,8 @@ def parse_tshark_output(output):
 
     return statistics
 
-def print_tshark_output(pcap_file, time_gap,type):
+
+def print_tshark_output(pcap_file, time_gap, type):
     # 调用 subprocess 执行命令
     tshark_output = parse_tshark(pcap_file, time_gap)
 
@@ -133,14 +138,16 @@ def print_vod_output():
     file = 'captured_traffic_tcp.pcap'
     pcap_file = FILE_PREFIX + file
     time_gap = 4
-    return print_tshark_output(pcap_file, time_gap,'vod')
+    return print_tshark_output(pcap_file, time_gap, 'vod')
+
 
 def print_live_output():
     # 要读取的 pcap 文件路径
     file = 'captured_traffic.pcap'
     pcap_file = FILE_PREFIX + file
     time_gap = 4
-    return print_tshark_output(pcap_file, time_gap,'live')
+    return print_tshark_output(pcap_file, time_gap, 'live')
+
 
 if __name__ == "__main__":
     list_bw = getBandwidthList()
