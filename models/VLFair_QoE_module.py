@@ -12,6 +12,8 @@ sys.path.append(d)
 M_IN_K = 1000
 M_IN_BPS = 1000000
 
+MS_IN_S = 1000
+
 theta = 8.17
 
 # 获取统计数据再赋值
@@ -41,9 +43,11 @@ def get_live_metric_dic():
 
 
 def get_vod_metric_dic(data_dic, last_chunk_quality):
-    # rebuffer:ms
+    # rebuffer:s
+    rebuffer = get_vod_normalization_rebuffer(data_dic['buffer'], data_dic['lastChunkStartTime'],
+                                              data_dic['lastChunkFinishTime'])
     result_infer = {'bitrate': VIDEO_BIT_RATE[data_dic['lastquality']] / M_IN_K,
-                    'RebufferTime': data_dic['RebufferTime'] / M_IN_K,
+                    'RebufferTime': rebuffer,
                     'q_now': VIDEO_BIT_RATE[data_dic['lastquality']] / M_IN_K,
                     'q_old': VIDEO_BIT_RATE[last_chunk_quality] / M_IN_K}
     return result_infer
@@ -129,10 +133,14 @@ def calLivePlayerQoE(live_metrics):
 
 # vod metrics
 # 获取重缓冲时长 , bw的值为1/x
-def get_vod_rebuffer(size, x, bufferold):
-    # print('获取重缓冲时长(正数)')
-    rebuffer_time = abs(size * x - bufferold)
-    return rebuffer_time
+def get_vod_rebuffer(buffer_occupy, start_time, finish_time):
+    download_delay = (finish_time - start_time) / MS_IN_S
+    gap = buffer_occupy - download_delay
+    if gap > 0:
+        return 0
+    elif gap < 0:
+        return abs(gap)
+
 
 
 # 获取质量切换次数
@@ -149,9 +157,9 @@ def get_vod_normalization_PQ(bitrate):
     return q
 
 
-def get_vod_normalization_rebuffer(size, x, bufferold):
+def get_vod_normalization_rebuffer(buffer_ocuppy, start_time, finish_time):
     # print('获取vod标准化重缓冲指标')
-    return normalization_metrics('rebuffer', get_vod_rebuffer(size, x, bufferold))
+    return normalization_metrics('rebuffer', get_vod_rebuffer(buffer_ocuppy, start_time, finish_time))
 
 
 def get_vod_normalization_smoothess(q_now, q_old):
@@ -166,7 +174,6 @@ def calVodPlayerQoE(vod_metrics):
     # print('获取质量QoE')
     PQ = get_vod_normalization_PQ(vod_metrics['bitrate'])
     rebuffer = vod_metrics['RebufferTime']
-    # rebuffer = get_vod_normalization_rebuffer(vod_metrics['size'], vod_metrics['x'], vod_metrics['bufferold'])
     smoothness = get_vod_normalization_smoothess(vod_metrics['q_now'], vod_metrics['q_old'])
     qoe = qoe_vector[0][0] * PQ + qoe_vector[0][1] * rebuffer + qoe_vector[0][2] * smoothness
     print('vod qoe and metrics:', qoe, PQ, rebuffer, smoothness)
@@ -174,5 +181,5 @@ def calVodPlayerQoE(vod_metrics):
 
 
 if __name__ == '__main__':
-    print(get_vod_normalization_PQ(100))
+    print(get_vod_normalization_PQ(0.1))
     print(get_live_normalization_PQ(0.1))
