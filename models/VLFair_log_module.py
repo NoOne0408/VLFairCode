@@ -18,8 +18,8 @@ def getRegulationContent(list_qoe, list_bw, list_target_bw):
         bw_before = list_bw[i]['bw']
         bw_after = list_target_bw[i]
         t = int(time.time())
-        record = type + '\t' + str(qoe) + '\t' + str(metrics) + '\t' + str(bw_before) + '\t' + str(
-            bw_after) + '\t' + str(t) + '\n'
+        record = type + '\t' + str(qoe) + '\t' + str(metrics) + '\t' + str(round(bw_before, 2)) + '\t' + str(
+            round(bw_after, 2)) + '\t' + str(t) + '\n'
         # print('record:', record)
         log_content += record
         i += 1

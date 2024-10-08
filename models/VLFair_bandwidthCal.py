@@ -31,16 +31,31 @@ def getCalBandwidthList(list_bw, list_qoe):
 
     total_bandwidth = sum(bandwidth_value_list)
     target_bandwidth_list = []
+    i = 0
 
     for qoe in qoe_value_list:
         qoe_ratio = get_qoe_ratio(qoe, qoe_value_list)
         # print('qoe_ratio',qoe_ratio)
-        bw_new = qoe_ratio * total_bandwidth
+        bw_new = cal_bw_by_qoe(bandwidth_value_list[i], total_bandwidth, qoe_ratio)
+        i += 1
         target_bandwidth_list.append(bw_new)
     return target_bandwidth_list
 
 
+def cal_bw_by_qoe(bw, bw_total, qoe_ratio):
+    new_bw = 0
+    if qoe_ratio < 0.5:
+        new_bw = min(bw * 2, bw_total)
+    elif qoe_ratio > 0.5:
+        new_bw = bw / 2
+    return new_bw
+
+
 def get_qoe_ratio(qoe, qoe_list):
+    return qoe / sum(qoe_list)
+
+
+def get_qoe_ratio_oppose(qoe, qoe_list):
     return 1 - (qoe / sum(qoe_list))
 
 

@@ -10,7 +10,8 @@ import sys
 d = dirname(dirname(abspath(__file__)))
 sys.path.append(d)
 
-from models.VLFair_QoE_module import calLivePlayerQoE, calVodPlayerQoE, get_live_metric_dic, get_vod_metric_dic, get_vod_final_metrics, get_live_final_metrics
+from models.VLFair_QoE_module import calLivePlayerQoE, calVodPlayerQoE, get_live_metric_dic, get_vod_metric_dic, \
+    get_vod_final_metrics, get_live_final_metrics
 
 FILE_PREFIX = 'VLFair/live_player_data/'
 
@@ -60,7 +61,7 @@ def set_live_status():
         metrics = get_live_metric_dic()
         final_metrics = get_live_final_metrics(metrics)
         qoe = calLivePlayerQoE(final_metrics)
-        live_qoe_dic = {'type': 'live', 'qoe': qoe, 'metrics': final_metrics}
+        live_qoe_dic = {'type': 'live', 'qoe': round(qoe, 2), 'metrics': final_metrics}
 
         time.sleep(4)
 
@@ -79,7 +80,7 @@ def set_vod_status(data_dic):
     last_chunk_quality = data_dic['lastquality']
     # print('last_chunk_quality_after:',last_chunk_quality)
     qoe = calVodPlayerQoE(final_metrics)
-    vod_qoe_dic = {'type': 'vod', 'qoe': qoe, 'metrics': final_metrics}
+    vod_qoe_dic = {'type': 'vod', 'qoe': round(qoe, 2), 'metrics': final_metrics}
 
 
 # 定义监听的主机和端口

@@ -5,17 +5,16 @@ from os.path import dirname, abspath
 d = dirname(dirname(abspath(__file__)))
 sys.path.append(d)
 
-folder = ""
 
 PROXY_INGRESS = "wlp9s0"
 PROXY_EGRESS = "vmnet1"
 VM_INGRESS = "ens33"
+MAX_BW = 4
 
 
 # proxy入口限流，为了观察各个网络情况下的执行情况
 
-def create_proxy_ingress_scripts(list_target_bw):
-    max_bw = 5
+def create_proxy_ingress_scripts(max_bw):
     print("createScriptsContentIngressProxy")
     script_tc = "sudo tc qdisc add dev " + PROXY_INGRESS + " handle ffff: ingress\n"
     script_tc += "sudo tc filter add dev " + PROXY_INGRESS + (" parent ffff: protocol ip prio 50 u32 match ip "
@@ -81,16 +80,16 @@ def doProxyEgressCommand(script_tc):
     os.system(script_tc)
 
 
-def doProxyIngressCommand(network_interface, script_tc):
-    cmd = "sudo tc qdisc del dev  " + network_interface + "  ingress"
+def doProxyIngressCommand(script_tc):
+    cmd = "sudo tc qdisc del dev  " + PROXY_INGRESS + "  ingress"
     os.system(cmd)
     os.system(script_tc)
+    show_proxy_ingress_scripts()
 
 
 
 if __name__ == "__main__":
-    list_target_bw = [1, 2]
-    content = create_proxy_egress_scripts(list_target_bw)
-    print(content)
-    # content = "sudo tc qdisc del dev vmnet1 root"
-    doProxyEgressCommand(content)
+    script_tc = create_proxy_ingress_scripts(MAX_BW)
+    print(script_tc)
+    doProxyIngressCommand(script_tc)
+

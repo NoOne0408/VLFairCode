@@ -12,6 +12,28 @@ from models.VLFair_bandwidthCal import getBandwidthList, getCalBandwidthList
 from models.VLFair_log_module import getRegulationContent, doWrite
 from models.VLFair_SSH import doSSHcmd
 
+# 0: off 1:on
+REGULATION_SWITCH = 1
+
+
+def turn_on(list_target_bw, regulation_content):
+    doWrite('regulation_on.log', regulation_content)
+    # 5. 根据bw分配结果，返回tc脚本
+    content_egress = create_proxy_egress_scripts(list_target_bw)
+    # print('content_egress:', content_egress)
+
+    content_ingress = create_vm_ingress_scripts(list_target_bw)
+    # print('content_ingress:', content_ingress)
+
+    #  6. proxy执行egress tc, vm执行ingress tc (ssh)
+    doProxyEgressCommand(content_egress)
+    do_ssh_cmd_result = doSSHcmd(content_ingress)
+    print('doSSHcmd:', do_ssh_cmd_result)
+
+
+def turn_off(regulation_content):
+    doWrite('regulation_off.log', regulation_content)
+
 
 def regulationAfterListening():
     while True:
@@ -31,19 +53,13 @@ def regulationAfterListening():
 
             # 4. log
             regulation_content = getRegulationContent(list_qoe, list_bw, list_target_bw)
-            doWrite('regulation.log', regulation_content)
 
-            # 5. 根据bw分配结果，返回tc脚本
-            content_egress = create_proxy_egress_scripts(list_target_bw)
-            print('content_egress:', content_egress)
+            if REGULATION_SWITCH == 1:
+                turn_on(list_target_bw, regulation_content)
+            elif REGULATION_SWITCH == 0:
+                turn_off(regulation_content)
 
-            content_ingress = create_vm_ingress_scripts(list_target_bw)
-            print('content_ingress:', content_ingress)
 
-            #  6. proxy执行egress tc, vm执行ingress tc (ssh)
-            # doProxyEgressCommand(content_egress)
-            # do_ssh_cmd_result = doSSHcmd(content_ingress)
-            # print('doSSHcmd:', do_ssh_cmd_result)
         except Exception as e:
             print(f"xxxtest try catch")
 
