@@ -7,61 +7,90 @@ sys.path.append(d)
 
 folder = ""
 
+PROXY_INGRESS = "wlp9s0"
+PROXY_EGRESS = "vmnet1"
+VM_INGRESS = "ens33"
 
-# 将流控脚本内容输出到脚本文件中
-# def createScripts(content):
-#     file_name = "VLFair/traffic_control.sh"
-#     path = floder + file_name
-#     with open(path, "w") as file:
-#         file.write(content)
+
+# proxy入口限流，为了观察各个网络情况下的执行情况
+
+def create_proxy_ingress_scripts(list_target_bw):
+    max_bw = 5
+    print("createScriptsContentIngressProxy")
+    script_tc = "sudo tc qdisc add dev " + PROXY_INGRESS + " handle ffff: ingress\n"
+    script_tc += "sudo tc filter add dev " + PROXY_INGRESS + (" parent ffff: protocol ip prio 50 u32 match ip "
+                                                              " src 0.0.0.0/0 police  rate ") + str(
+        max_bw) + "mbit burst 10k drop\n"
+    return script_tc
+
+
+def show_proxy_ingress_scripts():
+    script_tc = "sudo tc qdisc show dev " + PROXY_INGRESS + "\n"
+    script_tc += "sudo tc filter show dev " + PROXY_INGRESS + " parent ffff:"
+    return script_tc
+
+
+
 
 # 将带宽结果转化为流控脚本内容
-def createScriptsContentEgress(list_target_bw):
+def create_proxy_egress_scripts(list_target_bw):
     print("createScriptsContentEgress")
-    host_network_interfare = "vmnet1"
-    script_tc = "sudo tc qdisc add dev " + host_network_interfare + " root handle 1: htb default 30 \n"
+    script_tc = "sudo tc qdisc add dev " + PROXY_EGRESS + " root handle 1: htb default 30 \n"
     classid = 1
     for bw in list_target_bw:
-        script_tc += "sudo tc class add dev " + host_network_interfare + " parent 1:0 classid 1:" + str(
+        script_tc += "sudo tc class add dev " + PROXY_EGRESS + " parent 1:0 classid 1:" + str(
             classid) + " htb rate " + str(bw) + "mbit\n"
         classid += 1
     # add filter
-    script_tc += "sudo tc filter add dev " + host_network_interfare + (" protocol ip parent 1:0 prio 1 u32 match ip "
-                                                                       " protocol 6 0xff match ip sport 80 0xffff "
-                                                                       " flowid 1:1 \n")
-    script_tc += "sudo tc filter add dev " + host_network_interfare + (" protocol ip parent 1:0 prio 1 u32 match ip "
-                                                                       " protocol 17 0xff match ip sport 8000 0xffff "
-                                                                       " flowid 1:2 \n")
+    script_tc += "sudo tc filter add dev " + PROXY_EGRESS + (" protocol ip parent 1:0 prio 1 u32 match ip "
+                                                             " protocol 6 0xff match ip sport 80 0xffff "
+                                                             " flowid 1:1 \n")
+    script_tc += "sudo tc filter add dev " + PROXY_EGRESS + (" protocol ip parent 1:0 prio 1 u32 match ip "
+                                                             " protocol 17 0xff match ip sport 8000 0xffff "
+                                                             " flowid 1:2 \n")
+    return script_tc
 
+
+def show_proxy_egress_scripts():
     # show class and filter
-    script_tc += "sudo tc class show dev " + host_network_interfare + "\n"
-    script_tc += "sudo tc filter show dev " + host_network_interfare
+    script_tc = "sudo tc class show dev " + PROXY_EGRESS + "\n"
+    script_tc += "sudo tc filter show dev " + PROXY_EGRESS
     return script_tc
 
 
-def createScriptsContentIngress(list_target_bw):
-    network_interfare = "ens33"
+def create_vm_ingress_scripts(list_target_bw):
     print("createScriptsContentIngress")
-    script_tc = "sudo tc qdisc add dev " + network_interfare + " handle ffff: ingress\n"
-    script_tc += "sudo tc filter add dev " + network_interfare + (" parent ffff: protocol ip prio 1 u32 match ip "
-                                                                  " protocol 6 0xff match ip dport 80 0xffff police "
-                                                                  " rate ") + str(list_target_bw[0]) + "mbit burst 10k drop\n"
-    script_tc += "sudo tc filter add dev " + network_interfare + (" parent ffff: protocol ip prio 1 u32 match ip "
-                                                                  " protocol 17 0xff match ip dport 8000 0xffff police "
-                                                                  "rate ") + str(list_target_bw[1]) + "mbit burst 10k drop\n"
-    script_tc += "sudo tc filter show dev " + network_interfare + " parent ffff:"
+    script_tc = "sudo tc qdisc add dev " + VM_INGRESS + " handle ffff: ingress\n"
+    script_tc += "sudo tc filter add dev " + VM_INGRESS + (" parent ffff: protocol ip prio 1 u32 match ip "
+                                                           " protocol 6 0xff match ip dport 80 0xffff police "
+                                                           " rate ") + str(list_target_bw[0]) + "mbit burst 10k drop\n"
+    script_tc += "sudo tc filter add dev " + VM_INGRESS + (" parent ffff: protocol ip prio 1 u32 match ip "
+                                                           " protocol 17 0xff match ip dport 8000 0xffff police "
+                                                           "rate ") + str(list_target_bw[1]) + "mbit burst 10k drop\n"
     return script_tc
 
 
-def doEgressCommand(script_tc):
-    cmd = "sudo tc qdisc del dev vmnet1 root"
+def show_vm_ingress_scripts():
+    script_tc = "sudo tc filter show dev " + VM_INGRESS + " parent ffff:"
+    return script_tc
+
+
+def doProxyEgressCommand(script_tc):
+    cmd = "sudo tc qdisc del dev " + PROXY_EGRESS + " root"
     os.system(cmd)
     os.system(script_tc)
 
 
+def doProxyIngressCommand(network_interface, script_tc):
+    cmd = "sudo tc qdisc del dev  " + network_interface + "  ingress"
+    os.system(cmd)
+    os.system(script_tc)
+
+
+
 if __name__ == "__main__":
     list_target_bw = [1, 2]
-    content = createScriptsContentEgress(list_target_bw)
+    content = create_proxy_egress_scripts(list_target_bw)
     print(content)
     # content = "sudo tc qdisc del dev vmnet1 root"
-    doEgressCommand(content)
+    doProxyEgressCommand(content)

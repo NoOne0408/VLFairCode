@@ -16,8 +16,8 @@ FILE_PREFIX = 'VLFair/live_player_data/'
 def getBandwidthList():
     print("getBandwidthList")
     list_bw = []
-    dic_vod = {'vod bw': print_vod_output()}
-    dic_live = {'live bw': print_live_output()}
+    dic_vod = {'type': 'vod', 'bw': print_vod_output()}
+    dic_live = {'type': 'live', 'bw': print_live_output()}
     list_bw.append(dic_vod)
     list_bw.append(dic_live)
     return list_bw
@@ -48,8 +48,8 @@ def get_qoe_ratio(qoe, qoe_list):
 def get_bandwidth_value_list(list_bw):
     bandwidth_value_list = []
     for bw_dic in list_bw:
-        player_key = list(bw_dic.keys())[0]
-        bw = bw_dic[player_key]
+        # player_key = list(bw_dic.keys())[0]
+        bw = bw_dic['bw']
         # print('bw_value', bw)
         bandwidth_value_list.append(bw)
     return bandwidth_value_list
@@ -59,8 +59,8 @@ def get_bandwidth_value_list(list_bw):
 def get_qoe_value_list(list_qoe):
     qoe_value_list = []
     for qoe_dict in list_qoe:
-        player_key = list(qoe_dict.keys())[0]
-        qoe_value = qoe_dict[player_key]
+        # player_key = list(qoe_dict.keys())[0]
+        qoe_value = qoe_dict['qoe']
         # print('qoe_value',qoe_value)
         qoe_value_list.append(qoe_value)
     return qoe_value_list

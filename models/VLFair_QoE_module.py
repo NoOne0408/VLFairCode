@@ -118,13 +118,21 @@ def get_live_normalization_latency(T_client, T_server, b_client):
     return normalization_metrics('latency', get_end2end_latency(T_client, T_server, b_client))
 
 
-def calLivePlayerQoE(live_metrics):
+def get_live_final_metrics(live_metrics):
     PQ = get_live_normalization_PQ(live_metrics['bitrate'])
     rebuffer = get_live_normalization_rebuffer(live_metrics['framesReceivedPerSecond'], 0, 0)
     smoothness = live_metrics['smoothness']
     latency = get_live_normalization_latency(live_metrics['T_client'], live_metrics['T_server'],
                                              live_metrics['b_client'])
     frame_jitter = get_live_normalization_frame_jitter(live_metrics['frame_jitter'])
+    return {'PQ': PQ, 'rebuffer': rebuffer, 'smoothness': smoothness, 'latency': latency}
+
+
+def calLivePlayerQoE(final_metrics):
+    PQ = final_metrics['PQ']
+    rebuffer = final_metrics['rebuffer']
+    smoothness = final_metrics['smoothness']
+    latency = final_metrics['latency']
     qoe = qoe_vector[1][0] * PQ + qoe_vector[1][1] * rebuffer + qoe_vector[1][2] * smoothness + qoe_vector[1][
         3] * latency
     # print('live qoe and metrics(qoe,PQ,rebuffer,smoothness,latency,frame_jitter):',qoe,PQ,rebuffer,smoothness,latency,frame_jitter)
@@ -140,7 +148,6 @@ def get_vod_rebuffer(buffer_occupy, start_time, finish_time):
         return 0
     elif gap < 0:
         return abs(gap)
-
 
 
 # 获取质量切换次数
@@ -169,14 +176,21 @@ def get_vod_normalization_smoothess(q_now, q_old):
     return normalization_metrics('smoothness', get_vod_smoothness(pq_now, pq_old))
 
 
-# 获取某个vod播放器某时隙 k 用户体验值
-def calVodPlayerQoE(vod_metrics):
-    # print('获取质量QoE')
+def get_vod_final_metrics(vod_metrics):
     PQ = get_vod_normalization_PQ(vod_metrics['bitrate'])
     rebuffer = vod_metrics['RebufferTime']
     smoothness = get_vod_normalization_smoothess(vod_metrics['q_now'], vod_metrics['q_old'])
+    return {'PQ': PQ, 'rebuffer': rebuffer, 'smoothness': smoothness}
+
+
+# 获取某个vod播放器某时隙 k 用户体验值
+def calVodPlayerQoE(final_metrics):
+    # print('获取质量QoE')
+    PQ = final_metrics['PQ']
+    rebuffer = final_metrics['rebuffer']
+    smoothness = final_metrics['smoothness']
     qoe = qoe_vector[0][0] * PQ + qoe_vector[0][1] * rebuffer + qoe_vector[0][2] * smoothness
-    print('vod qoe and metrics:', qoe, PQ, rebuffer, smoothness)
+    # print('vod qoe and metrics:', qoe, PQ, rebuffer, smoothness)
     return qoe
 
 
