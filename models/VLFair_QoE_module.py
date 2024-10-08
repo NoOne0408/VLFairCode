@@ -180,7 +180,7 @@ def get_vod_final_metrics(vod_metrics):
     PQ = get_vod_normalization_PQ(vod_metrics['bitrate'])
     rebuffer = vod_metrics['RebufferTime']
     smoothness = get_vod_normalization_smoothess(vod_metrics['q_now'], vod_metrics['q_old'])
-    return {'PQ': PQ, 'rebuffer': rebuffer, 'smoothness': smoothness}
+    return {'PQ': PQ, 'rebuffer': rebuffer, 'smoothness': smoothness, 'latency': 0}
 
 
 # 获取某个vod播放器某时隙 k 用户体验值
