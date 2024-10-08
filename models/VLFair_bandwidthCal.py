@@ -7,6 +7,8 @@ d = dirname(dirname(abspath(__file__)))
 sys.path.append(d)
 from numpy import *
 
+from VLFair_tcScripts import MAX_BW
+
 M_IN_K = 1000
 M_IN_BPS = 1000000
 BIT_IN_BYTE = 8
@@ -29,7 +31,8 @@ def getCalBandwidthList(list_bw, list_qoe):
     qoe_value_list = get_qoe_value_list(list_qoe)
     bandwidth_value_list = get_bandwidth_value_list(list_bw)
 
-    total_bandwidth = sum(bandwidth_value_list)
+    # total_bandwidth = sum(bandwidth_value_list)
+    total_bandwidth = MAX_BW
     target_bandwidth_list = []
     i = 0
 

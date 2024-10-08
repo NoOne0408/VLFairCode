@@ -5,11 +5,13 @@ from os.path import dirname, abspath
 d = dirname(dirname(abspath(__file__)))
 sys.path.append(d)
 
+from models.VLFair_SSH import delete_tc_outer
+
 
 PROXY_INGRESS = "wlp9s0"
 PROXY_EGRESS = "vmnet1"
 VM_INGRESS = "ens33"
-MAX_BW = 4
+MAX_BW = 6
 
 
 # proxy入口限流，为了观察各个网络情况下的执行情况
@@ -75,21 +77,32 @@ def show_vm_ingress_scripts():
 
 
 def doProxyEgressCommand(script_tc):
+    delete_proxy_egress_scripts()
+    os.system(script_tc)
+    show_proxy_egress_scripts()
+
+def delete_proxy_egress_scripts():
     cmd = "sudo tc qdisc del dev " + PROXY_EGRESS + " root"
     os.system(cmd)
-    os.system(script_tc)
-
 
 def doProxyIngressCommand(script_tc):
-    cmd = "sudo tc qdisc del dev  " + PROXY_INGRESS + "  ingress"
-    os.system(cmd)
+    delete_proxy_ingress_scripts()
     os.system(script_tc)
     show_proxy_ingress_scripts()
 
+def delete_proxy_ingress_scripts():
+    cmd = "sudo tc qdisc del dev  " + PROXY_INGRESS + "  ingress"
+    os.system(cmd)
+
+def refresh_network_configuration():
+    delete_proxy_ingress_scripts()
+    delete_proxy_ingress_scripts()
+    delete_tc_outer()
 
 
 if __name__ == "__main__":
-    script_tc = create_proxy_ingress_scripts(MAX_BW)
-    print(script_tc)
-    doProxyIngressCommand(script_tc)
+    # script_tc = create_proxy_ingress_scripts(MAX_BW)
+    # doProxyIngressCommand(script_tc)
+
+    refresh_network_configuration()
 

@@ -53,12 +53,21 @@ def doSSHcmd(content):
     ssh_client = VLFair_SSH()
     ssh_client.connectSSH()
     # 先清理上次的ingress
-    cmd = "sudo tc qdisc del dev ens33 ingress"
-    runSSH(cmd, ssh_client)
+    delete_tc(ssh_client)
     # 再生成新的规则
     return_content = runSSH(content, ssh_client)
     ssh_client.closeSSH()
     return return_content
+
+
+def delete_tc(ssh_client):
+    cmd = "sudo tc qdisc del dev ens33 ingress"
+    runSSH(cmd, ssh_client)
+
+def delete_tc_outer():
+    ssh_client = VLFair_SSH()
+    ssh_client.connectSSH()
+    delete_tc(ssh_client)
 
 
 if __name__ == '__main__':

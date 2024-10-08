@@ -104,5 +104,5 @@ def plot_bw():
 if __name__ == "__main__":
     init_data_list()
     injerk_data('regulation_on.log')
-    # plot_qoe()
-    plot_bw()
+    plot_qoe()
+    # plot_bw()
