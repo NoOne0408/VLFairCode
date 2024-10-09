@@ -2,6 +2,7 @@ import numpy as np
 
 from models.VLFair_log_module import get_all_records, divide_records_dic_by_type, get_records_by_type
 import matplotlib.pyplot as plt
+from VLFair_tcScripts import MAX_BW
 
 SCHEMES = ['vod', 'live']
 
@@ -74,7 +75,9 @@ def plot_qoe():
     ax.legend(SCHEMES_REW, loc=8, bbox_to_anchor=(0.5, -0.1), ncol=int(np.ceil(len(SCHEMES) / 2.0)))
     # plt.savefig(RESULTS_IMAGE_FOLDER+l+'.jpg')
     # plt.gca().invert_yaxis()
+    plt.ylim((0, 1.2))
     plt.show()
+
 
 def plot_bw():
     ax = fig.add_subplot(111)
@@ -101,8 +104,10 @@ def plot_bw():
     # plt.gca().invert_yaxis()
     plt.show()
 
+
 if __name__ == "__main__":
     init_data_list()
-    injerk_data('regulation_on.log')
+    file_name = str(3) + '_regulation_on.log'
+    injerk_data(file_name)
     plot_qoe()
     # plot_bw()

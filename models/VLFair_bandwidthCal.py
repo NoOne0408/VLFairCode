@@ -27,30 +27,35 @@ def getBandwidthList():
 
 # 最简单的带宽分配方式：按照本player的QoE占总QoE的比值去分配带宽，qoe越小分配到的带宽越多
 def getCalBandwidthList(list_bw, list_qoe):
-    print("getCalBandwidthList")
-    qoe_value_list = get_qoe_value_list(list_qoe)
-    bandwidth_value_list = get_bandwidth_value_list(list_bw)
+    try:
+        print("getCalBandwidthList")
+        qoe_value_list = get_qoe_value_list(list_qoe)
+        bandwidth_value_list = get_bandwidth_value_list(list_bw)
 
-    # total_bandwidth = sum(bandwidth_value_list)
-    total_bandwidth = MAX_BW
-    target_bandwidth_list = []
-    i = 0
+        total_bandwidth = sum(bandwidth_value_list)
+        # total_bandwidth = MAX_BW
+        target_bandwidth_list = []
+        i = 0
 
-    for qoe in qoe_value_list:
-        qoe_ratio = get_qoe_ratio(qoe, qoe_value_list)
-        # print('qoe_ratio',qoe_ratio)
-        bw_new = cal_bw_by_qoe(bandwidth_value_list[i], total_bandwidth, qoe_ratio)
-        i += 1
-        target_bandwidth_list.append(bw_new)
-    return target_bandwidth_list
+        for qoe in qoe_value_list:
+            # qoe_ratio = get_qoe_ratio(qoe, qoe_value_list)
+            qoe_ratio = get_qoe_ratio_oppose(qoe, qoe_value_list)
+            bw_new = total_bandwidth*qoe_ratio
+            # print('qoe_ratio',qoe_ratio)
+            # bw_new = cal_bw_by_qoe(bandwidth_value_list[i], total_bandwidth, qoe_ratio)
+            i += 1
+            target_bandwidth_list.append(bw_new)
+        return target_bandwidth_list
+    except Exception as e:
+        print(f"xxxtest getCalBandwidthList")
 
 
 def cal_bw_by_qoe(bw, bw_total, qoe_ratio):
-    new_bw = 0
-    if qoe_ratio < 0.5:
-        new_bw = min(bw * 2, bw_total)
-    elif qoe_ratio > 0.5:
-        new_bw = bw / 2
+    new_bw = bw_total/2
+    # if qoe_ratio < 0.5:
+    #     new_bw = min(bw * 2, bw_total)
+    # elif qoe_ratio > 0.5:
+    #     new_bw = bw / 2
     return new_bw
 
 

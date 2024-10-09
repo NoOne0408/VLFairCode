@@ -101,8 +101,8 @@ def refresh_network_configuration():
 
 
 if __name__ == "__main__":
-    # script_tc = create_proxy_ingress_scripts(MAX_BW)
-    # doProxyIngressCommand(script_tc)
-
     refresh_network_configuration()
+    script_tc = create_proxy_ingress_scripts(MAX_BW)
+    doProxyIngressCommand(script_tc)
+
 

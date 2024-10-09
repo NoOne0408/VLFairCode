@@ -9,22 +9,25 @@ FILE_PREFIX = 'VLFair/live_player_data/'
 
 
 def getRegulationContent(list_qoe, list_bw, list_target_bw):
-    i = 0
-    log_content = ''
-    for qoe_record in list_qoe:
-        type = qoe_record['type']
-        qoe = qoe_record['qoe']
-        metrics = qoe_record['metrics']
-        bw_before = list_bw[i]['bw']
-        bw_after = list_target_bw[i]
-        t = int(time.time())
-        record = type + '\t' + str(qoe) + '\t' + str(metrics) + '\t' + str(round(bw_before, 2)) + '\t' + str(
-            round(bw_after, 2)) + '\t' + str(t) + '\n'
-        # print('record:', record)
-        log_content += record
-        i += 1
+    try:
+        i = 0
+        log_content = ''
+        for qoe_record in list_qoe:
+            type = qoe_record['type']
+            qoe = qoe_record['qoe']
+            metrics = qoe_record['metrics']
+            bw_before = list_bw[i]['bw']
+            bw_after = list_target_bw[i]
+            t = int(time.time())
+            record = type + '\t' + str(qoe) + '\t' + str(metrics) + '\t' + str(round(bw_before, 2)) + '\t' + str(
+                round(bw_after, 2)) + '\t' + str(t) + '\n'
+            # print('record:', record)
+            log_content += record
+            i += 1
 
-    return log_content
+        return log_content
+    except Exception as e:
+        print(f"xxxtest getRegulationContent")
 
 
 def doWrite(file, regulation_content):
