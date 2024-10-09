@@ -47,7 +47,7 @@ def getCalBandwidthList(list_bw, list_qoe):
             target_bandwidth_list.append(bw_new)
         return target_bandwidth_list
     except Exception as e:
-        print(f"xxxtest getCalBandwidthList")
+        print(f"xxxtest getCalBandwidthList:{e}")
 
 
 def cal_bw_by_qoe(bw, bw_total, qoe_ratio):
